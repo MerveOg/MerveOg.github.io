@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" href="piano-2.png" type="image/png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mer's Piano</title>
+
+    <style>
+        .reference-link {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1002; 
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #88a1ba;
+        }
+
+        .black-key span {
+            color: #ffffff;
+        }
+
+        .piano-title {
+            font-family: 'Georgia', serif;
+            font-size: 2em;
+            text-align: left;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        .piano-container {
+            display: flex;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            left: 50%;
+            top: 50%;
+            padding: 4em 1em 1em 1em;
+            border-radius: 0.62em;
+            background-color: #24272e;
+            box-shadow: 0 2em 4em rgba(7, 0, 53, 0.25);
+        }
+
+        .white-key {
+            width: 4.37em;
+            height: 17.5em;
+            background-color: #ffffff;
+            border-radius: 0 0 0.3em 0.3em;
+            border: 2px solid #24272e;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .white-key:hover {
+            background-color: #ebebeb;
+        }
+
+        .black-key {
+            width: 2.5em;
+            height: 10em;
+            border-radius: 0 0 0.3em 0.3em;
+            box-sizing: border-box;
+            position: absolute;
+            background-color: #070a0f;
+            cursor: pointer;
+        }
+
+        .black-key:hover {
+            background-color: #24272e;
+        }
+
+        .black-key:nth-child(1) {
+            left: 4em;
+        }
+
+        .black-key:nth-child(2) {
+            left: 8.37em;
+        }
+
+        .black-key:nth-child(3) {
+            left: 17.12em;
+        }
+
+        .black-key:nth-child(4) {
+            left: 21.5em;
+        }
+
+        .black-key:nth-child(5) {
+            left: 25.87em;
+        }
+
+        .black-key:nth-child(6) {
+            left: 34.62em;
+        }
+
+        .black-key:nth-child(7) {
+            left: 39em;
+        }
+
+        .black-key:nth-child(8) {
+            left: 47.75em;
+        }
+
+        .black-key:nth-child(9) {
+            left: 52.12em;
+        }
+
+        .black-key:nth-child(10) {
+            left: 56.5em;
+        }
+
+        .volume-controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8em;
+            justify-content: flex-start;
+        }
+
+        .toggle-button {
+            position: absolute;
+            left: calc(50% - 50px);
+            top: 40px;
+            z-index: 1001;
+        }
+
+
+        #volumePercentage {
+            color: #ffffff;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        @media screen and (max-width: 1000px) {
+            .piano-container {
+                font-size: 0.7em;
+            }
+        }
+
+        @media screen and (max-width: 700px) {
+            .piano-container {
+                font-size: 0.5em;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            .piano-container {
+                font-size: 0.3em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="piano-container"></div>
+    <button onclick="toggleKeys()" class="toggle-button">Show Keys</button>
+    <div class="volume-controls">
+        <span>Decrease Volume</span>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5">
+        <span>Increase Volume</span>
+        <span id="volumePercentage">50%</span>
+    </div>
+    <a href="https://www.youtube.com/watch?v=JR0o2fbhhlE" class="reference-link">Reference</a>
+    <script>
+        let pianoContainer = document.querySelector(".piano-container");
+        const base = "./audio/";
+
+        let volume = 0.5;
+
+        window.onload = () => {
+            for (let index = 1; index <= 24; index++) {
+                let div = document.createElement("div");
+                div.className = index <= 10 ? "black-key" : "white-key";
+
+                const number = index <= 9 ? "0" + index : index;
+                div.addEventListener("mousedown", () => {
+                    playSound(`key${number}`);
+                });
+                pianoContainer.appendChild(div);
+            }
+
+            const volumeControl = document.getElementById("volumeControl");
+            volumeControl.addEventListener("input", function () {
+                volume = this.value;
+                document.getElementById("volumePercentage").innerText = Math.round(volume * 100) + '%';
+            });
+
+            document.addEventListener("keydown", function (event) {
+                const keyMap = {
+                    "a": "key01", "s": "key02", "d": "key03", "f": "key04", "g": "key05",
+                    "h": "key06", "j": "key07", "k": "key08", "l": "key09", "z": "key10",
+                    "x": "key11", "c": "key12", "v": "key13", "b": "key14", "w": "key15",
+                    "e": "key16", "r": "key17", "t": "key18", "y": "key19", "u": "key20",
+                    "ı": "key21", "o": "key22", "p": "key23", "q": "key24"
+                };
+                const soundKey = keyMap[event.key];
+                if (soundKey) {
+                    playSound(soundKey);
+                }
+            });
+        };
+
+        function playSound(key) {
+            const audio = new Audio(`${base}${key}.mp3`);
+            audio.volume = volume;
+            audio.play().catch(err => {
+                console.error("Ses çalınırken bir hata oluştu:", err);
+            });
+        }
+        let keysShown = false;
+
+        function toggleKeys() {
+            const blackKeys = document.querySelectorAll(".black-key");
+            const whiteKeys = document.querySelectorAll(".white-key");
+
+            if (keysShown) {
+                whiteKeys.forEach(key => {
+                    if (key.querySelector("span")) {
+                        key.removeChild(key.querySelector("span"));
+                    }
+                });
+
+                blackKeys.forEach(key => {
+                    if (key.querySelector("span")) {
+                        key.removeChild(key.querySelector("span"));
+                    }
+                });
+
+                document.querySelector(".toggle-button").innerText = "Show Keys";
+                keysShown = false;
+            } else {
+                const whiteKeyLetters = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b'];
+                whiteKeys.forEach((key, index) => {
+                    const letter = whiteKeyLetters[index];
+                    const span = document.createElement('span');
+                    span.innerText = letter.toUpperCase();
+                    addLetterToKey(key, span);
+                });
+
+                const blackKeyLetters = ['w', 'e', 'r', 't', 'y', 'u', 'ı', 'o', 'p', 'q'];
+                blackKeys.forEach((key, index) => {
+                    const letter = blackKeyLetters[index];
+                    const span = document.createElement('span');
+                    span.innerText = letter.toUpperCase();
+                    addLetterToKey(key, span);
+                });
+
+                document.querySelector(".toggle-button").innerText = "Close Keys";
+                keysShown = true;
+            }
+        }
+
+        function addLetterToKey(key, span) {
+            span.style.position = 'absolute';
+            span.style.top = '90%';
+            span.style.transform = 'translateY(-50%)';
+            key.appendChild(span);
+        }
+    </script>
+</body>
+
+</html>
